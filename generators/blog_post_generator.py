@@ -1,4 +1,6 @@
 # content_generator/blog_post_generator.py
+from api_client.gpt_client import GPTClient
+
 
 def generate_outline(topic: str) -> dict:
     """
@@ -24,7 +26,7 @@ def generate_outline(topic: str) -> dict:
 
 def generate_content(outline: dict, topic: str) -> dict:
     """
-    Generate content for a blog post based on the provided outline and topic.
+    Generate content for a blog post based on the provided outline and topic using GPT.
 
     Parameters:
     outline (dict): A dictionary with keys 'introduction', 'body', 'conclusion'.
@@ -37,10 +39,12 @@ def generate_content(outline: dict, topic: str) -> dict:
     if not outline:
         return {}
 
+    gpt_client = GPTClient()
+
     content = {
-        'introduction': f"The topic '{topic}' is an important concept in data science. In this post, we will explore the basics of {topic}.",
-        'body': f"{topic} involves several key ideas that are crucial for understanding. Let's break down the core components.",
-        'conclusion': f"In conclusion, {topic} plays a vital role in data science, and understanding it is essential for anyone in the field."
+        'introduction': gpt_client.generate_text(f"Write an introduction about {topic}."),
+        'body': gpt_client.generate_text(f"Explain the main concepts of {topic}."),
+        'conclusion': gpt_client.generate_text(f"Summarize the importance of {topic}.")
     }
 
     return content

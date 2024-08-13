@@ -1,52 +1,55 @@
 import unittest
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, Mock
 from api_client.gpt_client import GPTClient
+from openai import OpenAIError
 
 
 class TestGPTClient(unittest.TestCase):
     """
-    Unit tests for the GPTClient.
+    Unit tests for the GPTClient class.
     """
 
-    @patch("api_client.gpt_client.load_dotenv")
-    @patch("os.getenv")
-    def test_api_key_loaded_from_env_file(self, mock_getenv, mock_load_dotenv):
-        """
-        Test that the API key is correctly loaded from a .env file.
-        """
-        mock_getenv.return_value = "test_api_key"
-        client = GPTClient()
-
-        mock_load_dotenv.assert_called_once()
-        mock_getenv.assert_called_with("OPENAI_API_KEY")
-        self.assertEqual(client.api_key, "test_api_key")
-
-    @patch("openai.Completion.create")
+    @patch("openai.chat.completions.create")
     def test_generate_text_success(self, mock_create):
         """
         Test that generate_text successfully returns generated text when the API call is successful.
+
+        This test mocks the OpenAI API response to simulate a successful request and verifies that the
+        generate_text method returns the correct text.
         """
-        # Mocking the API response to return a proper structure
-        mock_create.return_value = unittest.mock.Mock(
-            choices=[unittest.mock.Mock(text="This is a generated text.")]
-        )
+        # Mocking the API response
+        mock_create.return_value = Mock(choices=[Mock(message=Mock(content="This is a test response."))])
 
-        client = GPTClient(api_key="test_api_key")
-        prompt = "Test prompt"
-        response = client.generate_text(prompt)
+        client = GPTClient()
+        response = client.generate_text("Test prompt")
+        self.assertEqual(response, "This is a test response.")
 
-        self.assertEqual(response, "This is a generated text.")
-
-    @patch("openai.Completion.create")
-    def test_generate_text_error(self, mock_create):
+    @patch("openai.chat.completions.create")
+    def test_generate_text_openai_error(self, mock_create):
         """
-        Test that generate_text handles errors gracefully and returns an empty string.
-        """
-        mock_create.side_effect = Exception("API call failed")
-        client = GPTClient(api_key="test_api_key")
-        prompt = "Test prompt"
-        response = client.generate_text(prompt)
+        Test that generate_text handles OpenAI errors gracefully and returns an empty string.
 
+        This test simulates an OpenAIError when the API is called and verifies that the method
+        handles the error and returns an empty string.
+        """
+        mock_create.side_effect = OpenAIError("API call failed")
+
+        client = GPTClient()
+        response = client.generate_text("Test prompt")
+        self.assertEqual(response, "")
+
+    @patch("openai.chat.completions.create")
+    def test_generate_text_generic_error(self, mock_create):
+        """
+        Test that generate_text handles generic errors gracefully and returns an empty string.
+
+        This test simulates a generic exception when the API is called and verifies that the method
+        handles the error and returns an empty string.
+        """
+        mock_create.side_effect = Exception("A generic error occurred")
+
+        client = GPTClient()
+        response = client.generate_text("Test prompt")
         self.assertEqual(response, "")
 
 

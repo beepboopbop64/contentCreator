@@ -15,6 +15,6 @@ def create_blog_post(topic: str):
 
 
 if __name__ == '__main__':
-    topic = "t-tests"
+    topic = "ANOVA"
     blog_post = create_blog_post(topic)
     print(blog_post)
