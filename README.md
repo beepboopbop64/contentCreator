@@ -16,32 +16,32 @@ Welcome to **contentCreator**! This project leverages the power of OpenAI's GPT-
 
 The first step in creating a blog post is generating an outline. This gives structure to your content by breaking it down into key sections like "Introduction," "Body," and "Conclusion."
 
-\`\`\`python
+```python
 from generators.blog_post_generator import generate_outline
 
 outline = generate_outline("ANOVA")
-\`\`\`
+```
 
 ### 2. **Generate Content** 🧠
 
 Next, we use GPT-4 to fill in the sections of the outline with detailed content. This is where the magic happens—GPT-4 crafts content based on the prompts we provide.
 
-\`\`\`python
+```python
 from generators.blog_post_generator import generate_content
 
 content = generate_content(outline, "ANOVA")
-\`\`\`
+```
 
 ### 3. **Format the Blog Post** 🎨
 
 Finally, we format the generated content into a cohesive blog post, ready to be published or further edited.
 
-\`\`\`python
+```python
 from generators.blog_post_generator import format_blog_post
 
 formatted_post = format_blog_post(content)
 print(formatted_post)
-\`\`\`
+```
 
 ### 🎉 **Voila!** You’ve got yourself a blog post! 🎉
 
@@ -49,7 +49,7 @@ print(formatted_post)
 
 Here’s a quick overview of the project structure:
 
-\`\`\`
+```
 /contentCreator
     /generators
         /__init__.py
@@ -64,45 +64,45 @@ Here’s a quick overview of the project structure:
         /test_gpt_client.py
     /.env
     /main.py
-\`\`\`
+```
 
-- **/generators**: Contains modules for generating different types of content (e.g., blog posts, video scripts).
-- **/api_client**: Manages interactions with the GPT-4 API.
-- **/tests**: Houses all the unit tests, ensuring our code is solid.
+- **generators**: Contains modules for generating different types of content (e.g., blog posts, video scripts).
+- **api_client**: Manages interactions with the GPT-4 API.
+- **tests**: Houses all the unit tests, ensuring our code is solid.
 - **main.py**: The entry point for running the blog post generation process.
 
 ## 🔧 Setup & Installation
 
 ### 1. **Clone the Repository**
 
-\`\`\`bash
+```bash
 git clone https://github.com/beepboopbop64/contentCreator.git
 cd contentCreator
-\`\`\`
+```
 
 ### 2. **Install Dependencies**
 
 You’ll need Python and pip installed. Then, run:
 
-\`\`\`bash
+```bash
 pip install -r requirements.txt
-\`\`\`
+```
 
 ### 3. **Set Up Your `.env` File**
 
 Create a `.env` file in the root directory and add your OpenAI API key:
 
-\`\`\`
+```
 OPENAI_API_KEY=your_actual_api_key_here
-\`\`\`
+```
 
 ### 4. **Run the Example**
 
 Generate your first blog post on "ANOVA" by running:
 
-\`\`\`bash
+```bash
 python main.py
-\`\`\`
+```
 
 ## 🚀 Future Enhancements
 
