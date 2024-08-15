@@ -1,8 +1,6 @@
 import openai
-import os
-from dotenv import load_dotenv
 from openai import OpenAIError
-
+from config import OPENAI_API_KEY, MODEL_NAME, MAX_TOKENS, TEMPERATURE
 
 class GPTClient:
     """
@@ -11,33 +9,30 @@ class GPTClient:
 
     def __init__(self):
         """
-        Initialize the GPTClient with an API key from the .env file.
-
-        The API key is loaded from the environment variable `OPENAI_API_KEY`
-        which is expected to be defined in a `.env` file.
+        Initialize the GPTClient with an API key.
         """
-        load_dotenv()  # Load environment variables from the .env file
-        self.api_key = os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
+        if not OPENAI_API_KEY:
             raise ValueError("OpenAI API key not found. Please set the 'OPENAI_API_KEY' in your .env file.")
-        openai.api_key = self.api_key
+        openai.api_key = OPENAI_API_KEY
 
-    def generate_text(self, prompt: str, max_tokens: int = 500) -> str:
+    def generate_text(self, prompt: str, max_tokens: int = MAX_TOKENS, temperature: float = TEMPERATURE) -> str:
         """
         Generate text based on the provided prompt using the OpenAI GPT model.
 
         Parameters:
         - prompt (str): The prompt to send to the GPT model.
-        - max_tokens (int): The maximum number of tokens to generate. Default is 150.
+        - max_tokens (int): The maximum number of tokens to generate. Default is from config.
+        - temperature (float): The sampling temperature. Default is from config.
 
         Returns:
         - str: The generated text from the GPT model.
         """
         try:
             response = openai.chat.completions.create(
-                model="gpt-3.5-turbo",  # Specify the model, e.g., "gpt-3.5-turbo" or "gpt-4"
+                model=MODEL_NAME,  # Specify the model from config
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=max_tokens,
+                temperature=temperature,
             )
             return response.choices[0].message.content
         except OpenAIError as e:

@@ -1,4 +1,5 @@
 from generators.blog_post_generator import generate_outline, generate_content, format_blog_post
+from config import TOPIC
 
 
 def create_blog_post(topic: str):
@@ -15,6 +16,6 @@ def create_blog_post(topic: str):
 
 
 if __name__ == '__main__':
-    topic = "ANOVA"
-    blog_post = create_blog_post(topic)
+    defined_topic = TOPIC
+    blog_post = create_blog_post(defined_topic)
     print(blog_post)
