@@ -1,6 +1,7 @@
 import openai
 from openai import OpenAIError
-from config import OPENAI_API_KEY, MODEL_NAME, MAX_TOKENS, TEMPERATURE
+from config import OPENAI_API_KEY, MODEL_NAME, MAX_TOKENS, TEMPERATURE, BLOG_POST_STRUCTURE, VIDEO_SCRIPT_STRUCTURE
+
 
 class GPTClient:
     """
@@ -15,9 +16,9 @@ class GPTClient:
             raise ValueError("OpenAI API key not found. Please set the 'OPENAI_API_KEY' in your .env file.")
         openai.api_key = OPENAI_API_KEY
 
-    def generate_text(self, prompt: str, max_tokens: int = MAX_TOKENS, temperature: float = TEMPERATURE) -> str:
+    def generate_section(self, prompt: str, max_tokens: int = MAX_TOKENS, temperature: float = TEMPERATURE) -> str:
         """
-        Generate text based on the provided prompt using the OpenAI GPT model.
+        Generate text for a specific section based on the provided prompt using the OpenAI GPT model.
 
         Parameters:
         - prompt (str): The prompt to send to the GPT model.
@@ -29,16 +30,40 @@ class GPTClient:
         """
         try:
             response = openai.chat.completions.create(
-                model=MODEL_NAME,  # Specify the model from config
+                model=MODEL_NAME,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=max_tokens,
                 temperature=temperature,
             )
-            return response.choices[0].message.content
+            return response.choices[0].message.content.strip()
         except OpenAIError as e:
-            # Handle all OpenAI API errors
             print(f"Error: {e}")
         except Exception as e:
-            # Handle non-OpenAI errors
             print(f"An unexpected error occurred: {e}")
         return ""
+
+    def generate_blog_post(self) -> str:
+        """
+        Generate a complete blog post based on the structure defined in config.py.
+
+        Returns:
+        - str: The complete blog post.
+        """
+        sections = []
+        for section, prompt in BLOG_POST_STRUCTURE.items():
+            content = self.generate_section(prompt)
+            sections.append(f"{section.capitalize()}:\n{content}\n")
+        return "\n".join(sections)
+
+    def generate_video_script(self) -> str:
+        """
+        Generate a complete video script based on the structure defined in config.py.
+
+        Returns:
+        - str: The complete video script.
+        """
+        sections = []
+        for section, prompt in VIDEO_SCRIPT_STRUCTURE.items():
+            content = self.generate_section(prompt)
+            sections.append(f"{section.capitalize()}:\n{content}\n")
+        return "\n".join(sections)
