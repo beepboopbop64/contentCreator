@@ -15,7 +15,7 @@ MAX_TOKENS = 2000
 TEMPERATURE = 0.2
 
 # Other imports and configurations
-TOPIC = "Introduction to ANOVA"
+TOPICS = ["Introduction to ANOVA", "Advanced ANOVA"]
 
 # Tone Dictionary Based on Content Creators
 TONE_DICTIONARY = {
@@ -32,22 +32,23 @@ EXAMPLE = "Baking cookies"
 
 
 # Function to construct the prompt with optional example
-def construct_prompt(base_prompt):
+def construct_prompt(base_prompt, topic):
+    prompt = f"{base_prompt} {topic} in a {TONE} tone."
     if EXAMPLE:
-        return f"{base_prompt} Please include this example: {EXAMPLE}"
-    return base_prompt
+        prompt += f" Please include this example: {EXAMPLE}"
+    return prompt
 
 
-# Blog Post Structure with Topic, Tone, and Conditional Example Included
+# Blog Post Structure with Conditional Example and Tone Included
 BLOG_POST_STRUCTURE = {
-    "introduction": construct_prompt(f"Write an engaging introduction about {TOPIC}. {TONE}."),
-    "body": construct_prompt(f"Provide detailed information and analysis on {TOPIC}. {TONE}."),
-    "conclusion": construct_prompt(f"Summarize the key points and provide a concluding thought about {TOPIC}. {TONE}.")
+    "introduction": lambda topic: construct_prompt("Write an engaging introduction about", topic),
+    "body": lambda topic: construct_prompt("Provide detailed information and analysis on", topic),
+    "conclusion": lambda topic: construct_prompt("Summarize the key points and provide a concluding thought about", topic)
 }
 
-# Video Script Structure with Topic, Tone, and Conditional Example Included
+# Video Script Structure with Conditional Example and Tone Included
 VIDEO_SCRIPT_STRUCTURE = {
-    "intro": construct_prompt(f"Create an engaging introduction for a video about {TOPIC}.{TONE}."),
-    "key_points": construct_prompt(f"Outline the main points that will be discussed in a video about {TOPIC}. {TONE}."),
-    "summary": construct_prompt(f"Provide a concise summary of the content covered in the video about {TOPIC}. {TONE}.")
+    "intro": lambda topic: construct_prompt("Create an engaging introduction for a video about", topic),
+    "key_points": lambda topic: construct_prompt("Outline the main points that will be discussed in a video about", topic),
+    "summary": lambda topic: construct_prompt("Provide a concise summary of the content covered in the video about", topic)
 }

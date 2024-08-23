@@ -4,15 +4,11 @@ from api_client.gpt_client import GPTClient
 def main():
     client = GPTClient()
 
-    # Generate a blog post
-    blog_post = client.generate_blog_post()
-    print("Generated Blog Post:")
-    print(blog_post)
+    # Generate and save blog posts
+    client.generate_and_save_blog_posts()
 
-    # Generate a video script
-    # video_script = client.generate_video_script()
-    # print("Generated Video Script:")
-    # print(video_script)
+    # Generate and save video scripts
+    client.generate_and_save_video_scripts()
 
 
 if __name__ == "__main__":

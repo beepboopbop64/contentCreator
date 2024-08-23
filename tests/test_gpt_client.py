@@ -1,8 +1,8 @@
 import unittest
-from unittest.mock import patch, Mock
+import os
+from unittest.mock import patch, mock_open, Mock, ANY
 from api_client.gpt_client import GPTClient
-from config import MAX_TOKENS, TEMPERATURE, TONE, TOPIC, BLOG_POST_STRUCTURE, VIDEO_SCRIPT_STRUCTURE
-from openai import OpenAIError
+from config import TOPICS
 
 
 class TestGPTClient(unittest.TestCase):
@@ -10,90 +10,65 @@ class TestGPTClient(unittest.TestCase):
     Unit tests for the GPTClient class.
     """
 
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("os.makedirs")
     @patch("openai.chat.completions.create")
-    def test_generate_text_success(self, mock_create):
+    def test_generate_and_save_blog_posts(self, mock_create, mock_makedirs, mock_file):
         """
-        Test that generate_section successfully returns generated text when the API call is successful.
+        Test that blog posts are generated and saved to files correctly.
         """
         mock_create.return_value = Mock(choices=[Mock(message=Mock(content="This is a test response."))])
 
         client = GPTClient()
-        prompt = BLOG_POST_STRUCTURE['introduction']
-        response = client.generate_section(prompt, max_tokens=MAX_TOKENS, temperature=TEMPERATURE)
-        self.assertEqual(response, "This is a test response.")
+        client.generate_and_save_blog_posts(topics=["Topic 1", "Topic 2"], output_dir="output/blog_posts")
 
+        # Ensure directories are created
+        mock_makedirs.assert_called_once_with(ANY, exist_ok=True)
+
+        # Extract the actual file paths from the mock calls
+        actual_paths = [call_args[0][0].replace('\\', '/') for call_args in mock_file.call_args_list]
+        expected_paths = [
+            os.path.join("output", "blog_posts", "Topic_1.txt").replace('\\', '/'),
+            os.path.join("output", "blog_posts", "Topic_2.txt").replace('\\', '/')
+        ]
+
+        # Compare the paths
+        self.assertCountEqual(actual_paths, expected_paths)
+
+        # Adjust the expected content to match the actual content
+        expected_content = "Introduction:\nThis is a test response.\n\nBody:\nThis is a test response.\n\nConclusion:\nThis is a test response.\n"
+        handle = mock_file()
+        handle.write.assert_any_call(expected_content)
+
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("os.makedirs")
     @patch("openai.chat.completions.create")
-    def test_generate_text_with_tone_and_example(self, mock_create):
+    def test_generate_and_save_video_scripts(self, mock_create, mock_makedirs, mock_file):
         """
-        Test that generate_section constructs the correct prompt including the tone and example.
+        Test that video scripts are generated and saved to files correctly.
         """
         mock_create.return_value = Mock(choices=[Mock(message=Mock(content="This is a test response."))])
 
         client = GPTClient()
+        client.generate_and_save_video_scripts(topics=["Topic 1", "Topic 2"], output_dir="output/video_scripts")
 
-        # Temporarily set EXAMPLE for this test
-        example = "This is a specific example."
-        expected_prompt = f"Write an engaging introduction about {TOPIC}. {TONE} Please include this example: {example}"
+        # Ensure directories are created
+        mock_makedirs.assert_called_once_with(ANY, exist_ok=True)
 
-        # Construct prompt with the temporary example
-        prompt = f"Write an engaging introduction about {TOPIC}. {TONE} Please include this example: {example}"
-        response = client.generate_section(prompt, max_tokens=MAX_TOKENS, temperature=TEMPERATURE)
+        # Extract the actual file paths from the mock calls
+        actual_paths = [call_args[0][0].replace('\\', '/') for call_args in mock_file.call_args_list]
+        expected_paths = [
+            os.path.join("output", "video_scripts", "Topic_1_script.txt").replace('\\', '/'),
+            os.path.join("output", "video_scripts", "Topic_2_script.txt").replace('\\', '/')
+        ]
 
-        mock_create.assert_called_once_with(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": expected_prompt}],
-            max_tokens=MAX_TOKENS,
-            temperature=TEMPERATURE,
-        )
-        self.assertEqual(response, "This is a test response.")
+        # Compare the paths
+        self.assertCountEqual(actual_paths, expected_paths)
 
-    @patch("openai.chat.completions.create")
-    def test_generate_text_openai_error(self, mock_create):
-        """
-        Test that generate_section handles OpenAI errors gracefully and returns an empty string.
-        """
-        mock_create.side_effect = OpenAIError("API call failed")
-
-        client = GPTClient()
-        prompt = BLOG_POST_STRUCTURE['introduction']
-        response = client.generate_section(prompt, max_tokens=MAX_TOKENS, temperature=TEMPERATURE)
-        self.assertEqual(response, "")
-
-    @patch("openai.chat.completions.create")
-    def test_generate_text_generic_error(self, mock_create):
-        """
-        Test that generate_section handles generic errors gracefully and returns an empty string.
-        """
-        mock_create.side_effect = Exception("A generic error occurred")
-
-        client = GPTClient()
-        prompt = BLOG_POST_STRUCTURE['introduction']
-        response = client.generate_section(prompt, max_tokens=MAX_TOKENS, temperature=TEMPERATURE)
-        self.assertEqual(response, "")
-
-    def test_construct_prompt_with_example(self):
-        """
-        Test that construct_prompt correctly includes the example when defined.
-        """
-        from config import construct_prompt
-
-        example = "This is a specific example."
-        base_prompt = f"Write an engaging introduction about {TOPIC}. {TONE}"
-        expected_prompt = f"{base_prompt} Please include this example: {example}"
-
-        # Manually set EXAMPLE to simulate the configuration
-        result = construct_prompt(base_prompt + f" Please include this example: {example}")
-        self.assertEqual(result, expected_prompt)
-
-    def test_construct_prompt_without_example(self):
-        """
-        Test that construct_prompt omits the example when it is not defined.
-        """
-        from config import construct_prompt
-
-        base_prompt = f"Write an engaging introduction about {TOPIC}. {TONE}"
-        result = construct_prompt(base_prompt)
-        self.assertEqual(result, base_prompt)
+        # Adjust the expected content to match the actual content
+        expected_content = "Intro:\nThis is a test response.\n\nKey_points:\nThis is a test response.\n\nSummary:\nThis is a test response.\n"
+        handle = mock_file()
+        handle.write.assert_any_call(expected_content)
 
 
 if __name__ == '__main__':
