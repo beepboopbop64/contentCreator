@@ -15,7 +15,7 @@ MAX_TOKENS = 2000
 TEMPERATURE = 0.2
 
 # Other imports and configurations
-TOPICS = ["Introduction to ANOVA", "Advanced ANOVA"]
+TOPICS = ["Introduction to ANOVA", "Types of ANOVA", "ANOVA Assumptions"]
 
 # Tone Dictionary Based on Content Creators
 TONE_DICTIONARY = {
@@ -30,13 +30,10 @@ TONE = TONE_DICTIONARY.get(CONTENT_CREATOR)
 # Optional example to be included
 EXAMPLE = "Baking cookies"
 
-
-# Function to construct the prompt with optional example
-def construct_prompt(base_prompt, topic):
-    prompt = f"{base_prompt} {topic} in a {TONE} tone."
-    if EXAMPLE:
-        prompt += f" Please include this example: {EXAMPLE}"
-    return prompt
+# Series Configuration
+IS_SERIES = True
+SERIES_TITLE = "ANOVA Explained"  # Title of the series
+SERIES_PART = ["Part 1", "Part 2", "Part 3"]  # Titles for each part of the series
 
 
 # Blog Post Structure with Conditional Example and Tone Included
