@@ -8,7 +8,7 @@ def main():
     client.generate_and_save_blog_posts()
 
     # Generate and save video scripts
-    client.generate_and_save_video_scripts()
+    # client.generate_and_save_video_scripts()
 
 
 if __name__ == "__main__":
